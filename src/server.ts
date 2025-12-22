@@ -18,6 +18,7 @@ class AppServer {
     }
 
     private async handleRequest(req: IncomingMessage, res: ServerResponse) {
+        console.log(req.url);
         const parsedUrl = parseUrl(req.url || "", true);
         const pathname = parsedUrl.pathname || "";
 
@@ -38,7 +39,16 @@ class AppServer {
         }catch (error) {}
 
     }
+
+    public start(): void {
+        this.server.listen(this.port, () => {
+            console.log(`Server running on http://localhost:${this.port}`);
+        });
+    }
 }
+
+const server = new AppServer(5000);
+server.start();
 
 /**
  * 
