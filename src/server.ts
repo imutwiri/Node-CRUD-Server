@@ -24,10 +24,10 @@ class AppServer {
 
         try {
             if (pathname === "/users" && req.method === "POST") {
-                // TODO
+                return this.createUser(req, res);
             }
             if (pathname === "/users" && req.method === "GET") {
-                // TODO
+                return this.getAllUsers(res);
             }
             if (pathname.startsWith("/users/") && req.method === "PUT") {
                 // TODO
@@ -35,6 +35,8 @@ class AppServer {
             if (pathname.startsWith("/users/") && req.method === "DELETE") {
                 // TODO
             }
+
+            this.sendJSON(res, 404, { error: "Route not found" });
 
         }catch (error) {}
 
@@ -44,6 +46,11 @@ class AppServer {
         this.server.listen(this.port, () => {
             console.log(`Server running on http://localhost:${this.port}`);
         });
+    }
+
+    private sendJSON(res: ServerResponse, statusCode: number, data: any) {
+        res.writeHead(statusCode, { "content-type": "application/json" });
+        res.end(JSON.stringify(data));
     }
 
     private parseBody(req: IncomingMessage): Promise<any> {
@@ -58,6 +65,32 @@ class AppServer {
                 }
             });
         });    
+    }
+
+    private async createUser(req: IncomingMessage, res: ServerResponse) {
+        try {
+            const body = await this.parseBody(req);
+            if(!body.name || !body.email) {
+                return this.sendJSON(res, 400, { 
+                    error: "Name and email are required",
+                });
+            }
+
+            const newUser: User = {
+                id: this.users.length + 1,
+                name: body.name,
+                email: body.email,
+            };
+            this.users.push(newUser);
+            this.sendJSON(res, 201, newUser);
+
+        }catch (error) {
+            this.sendJSON(res, 400, { error: "Invalid JSON format" });
+        }
+    }
+
+    private async getAllUsers(res: ServerResponse) {
+        this.sendJSON(res, 200, this.users);
     }
 }
 
