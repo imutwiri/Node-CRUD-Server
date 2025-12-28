@@ -140,10 +140,3 @@ class AppServer {
 const server = new AppServer(5000);
 server.start();
 
-/**
- * 
- C = create
- R = read
- U = update
- D = delete
- */
